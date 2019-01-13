@@ -2,8 +2,8 @@ package framework
 
 import "fmt"
 
-func log(msg string) {
-	fmt.Printf("[FRMWRK] %s\n", msg)
+func log(format string, a ...interface{}) {
+	fmt.Printf("[FRMWRK] %s\n", fmt.Sprintf(format, a...))
 }
 
 func logerr(err error) {

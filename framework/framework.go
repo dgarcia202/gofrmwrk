@@ -1,10 +1,6 @@
 package framework
 
 import (
-	"fmt"
-	"net/http"
-	"regexp"
-
 	"github.com/hoisie/web"
 )
 
@@ -12,7 +8,19 @@ import (
 type routeHandler struct {
 	pattern string
 	method  string
-	handler func(*http.Request) http.Response
+	handler interface{}
+}
+
+// ActionRequest contains relevant information about the incoming request
+type ActionRequest struct {
+	params map[string]string
+	body   interface{}
+}
+
+// ActionResponse allows request handlers to customize the generate http response
+type ActionResponse struct {
+	status int
+	body   interface{}
 }
 
 var routes = make([]routeHandler, 0)
@@ -29,24 +37,8 @@ func ServeOn(netInterface string) {
 }
 
 // Route adds a new unbinded route handler
-func Route(pattern string, method string, handler func(*http.Request) http.Response) {
+func Route(pattern string, method string, handler interface{}) {
 	routes = append(routes, routeHandler{pattern, method, handler})
-}
-
-func router(ctx *web.Context, path string) {
-	log(fmt.Sprintf("received request in path %s", ctx.Request.URL.Path))
-	log(fmt.Sprintf("received request in path %s", ctx.Request.RequestURI))
-
-	for _, r := range routes {
-		match, err := regexp.MatchString(r.pattern, ctx.Request.URL.Path)
-		if err != nil {
-			logerr(err)
-		} else if match {
-			_ = r.handler(ctx.Request)
-			ctx.WriteString("something!")
-		}
-	}
-
 }
 
 func faviconHandler() string {
